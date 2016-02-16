@@ -58,19 +58,19 @@ func main() {
 		vt = vt.UTC()
 
 		fprintVersion := func(writer io.Writer) {
+			fmt.Fprintf(writer, "package main\n\nimport \"time\"\n\nconst (\n")
 			fmt.Fprintf(writer, "\tVERSION                = \"%s\"\n", version)
-			fmt.Fprintf(writer, "\tVERSION_TIME           = time.Date(%d, %d, %d, %d, %d, %d, 0, time.UTC)\n", vt.Year(), vt.Month(), vt.Day(), vt.Hour(), vt.Minute(), vt.Second())
-			fmt.Fprintf(writer, "\tVERSION_BUILD_TIME     = time.Date(%d, %d, %d, %d, %d, %d, 0, time.UTC)\n", bt.Year(), bt.Month(), bt.Day(), bt.Hour(), bt.Minute(), bt.Second())
 			fmt.Fprintf(writer, "\tVERSION_CONTROL_SYSTEM = \"git\"\n")
+			fmt.Fprintf(writer, ")\nvar (\n")
+			fmt.Fprintf(writer, "\tVERSION_TIME        = time.Date(%d, %d, %d, %d, %d, %d, 0, time.UTC)\n", vt.Year(), vt.Month(), vt.Day(), vt.Hour(), vt.Minute(), vt.Second())
+			fmt.Fprintf(writer, "\tVERSION_BUILD_TIME  = time.Date(%d, %d, %d, %d, %d, %d, 0, time.UTC)\n", bt.Year(), bt.Month(), bt.Day(), bt.Hour(), bt.Minute(), bt.Second())
+			fmt.Fprintf(writer, ")\n")
 		}
 
-		fmt.Fprintf(&buf, "package main\n\nimport \"time\"\n\nvar (\n")
 		fprintVersion(&buf)
-		fmt.Fprintf(&buf, ")\n")
 
 		filename := *basename + ".go"
 
-		// fmt.Println(buf.String())
 		err = dry.FileSetBytes(filename, buf.Bytes())
 		if err != nil {
 			panic(err)
