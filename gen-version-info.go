@@ -1,3 +1,4 @@
+//go:generate go run gen-version-info.go
 package main
 
 import (
@@ -18,7 +19,8 @@ import (
 const ISO8601 = "2006-01-02 15:04:05 -0700"
 
 var (
-	filename = flag.String("file", "version.go", "Name of the generated file")
+	lang     = flag.String("lang", "go", "Programming language")
+	basename = flag.String("file", "version", "Base name of the generated file, a language specific extension will be added")
 )
 
 func cmd(name string, args ...string) string {
@@ -59,19 +61,21 @@ func main() {
 			fmt.Fprintf(writer, "\tVERSION                = \"%s\"\n", version)
 			fmt.Fprintf(writer, "\tVERSION_TIME           = time.Date(%d, %d, %d, %d, %d, %d, 0, time.UTC)\n", vt.Year(), vt.Month(), vt.Day(), vt.Hour(), vt.Minute(), vt.Second())
 			fmt.Fprintf(writer, "\tVERSION_BUILD_TIME     = time.Date(%d, %d, %d, %d, %d, %d, 0, time.UTC)\n", bt.Year(), bt.Month(), bt.Day(), bt.Hour(), bt.Minute(), bt.Second())
-			fmt.Fprintf(writer, "\tVERSION_CONTROL_SYSTEM = \"Git\"\n")
+			fmt.Fprintf(writer, "\tVERSION_CONTROL_SYSTEM = \"git\"\n")
 		}
 
 		fmt.Fprintf(&buf, "package main\n\nimport \"time\"\n\nvar (\n")
 		fprintVersion(&buf)
 		fmt.Fprintf(&buf, ")\n")
 
+		filename := *basename + ".go"
+
 		// fmt.Println(buf.String())
-		err = dry.FileSetBytes(*filename, buf.Bytes())
+		err = dry.FileSetBytes(filename, buf.Bytes())
 		if err != nil {
 			panic(err)
 		} else {
-			fmt.Println("Created file", *filename)
+			fmt.Println("Created file", filename)
 			fprintVersion(os.Stdout)
 		}
 
